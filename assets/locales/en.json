@@ -1,0 +1,12 @@
+{
+    "lang": {
+        "he": "EN",
+        "en": "HE"
+    },
+    "auth": {
+        "login": "Sign in",
+        "email": "Email address",
+        "password": "Password",
+        "logout": "Sign out"
+    }
+}

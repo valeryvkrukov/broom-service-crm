@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}BroomService || Main{% endblock %}
+
+{% block body %}
+    {% for component in components %}
+    <div {{ vue_component(component.name, component.params) }} class="{{ component.rootCssClass }}"></div>
+    {% endfor %}
+{% endblock %}
