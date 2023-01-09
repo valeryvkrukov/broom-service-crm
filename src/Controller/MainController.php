@@ -6,22 +6,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class MainController extends AbstractController
 {
     private $security;
+    private $jwtManager;
+    private $tokenStorageInterface;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager)
     {
         $this->security = $security;
+        $this->jwtManager = $jwtManager;
+        $this->tokenStorageInterface = $tokenStorageInterface;
     }
 
-    #[Route('/{page}', name: 'app_main', requirements: ['page' => '^(?!api).*'])]
+    #[Route('/', name: 'app_root')]
+    #[Route('/{page<.+>}', name: 'app_main', requirements: ['page' => '^(?!api).*'])]
     public function index($page = ''): Response
     {
         $components = [];
 
-        if ($this->security->isGranted('ROLE_USER')) {
+        if (trim($page) !== 'sign-in') {
             $components[] = ['name' => 'Header', 'params' => [],
                 'rootCssClass' => 'navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow'
             ];
@@ -35,7 +42,8 @@ class MainController extends AbstractController
         }
 
         return $this->render('main/index.html.twig', [
-            'components' => $components
+            'security' => $this->jwtManager,
+            'page' => $page,
         ]);
     }
 }

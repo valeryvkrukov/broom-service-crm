@@ -8,5 +8,8 @@
         "email": "Email address",
         "password": "Password",
         "logout": "Sign out"
+    },
+    "dash": {
+        "dashboard": "Dashboard"
     }
 }

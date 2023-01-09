@@ -40,7 +40,7 @@ Encore
     .enableSingleRuntimeChunk()
 
     .enableVueLoader(() => {}, {
-        useJsx: true,
+        useJsx: true
     })
     .addPlugin(
         new webpack.DefinePlugin({

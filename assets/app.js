@@ -9,46 +9,47 @@
 import './styles/global.scss';
 
 // start the Stimulus application
-import './bootstrap';
+//import './bootstrap';
 
 // Vue integration
-import { provide } from 'vue';
-import * as VueRouter from 'vue-router'; 
+import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';  
 import { createI18n } from 'vue-i18n';
-import { registerVueControllerComponents } from '@symfony/ux-vue';
+import store from './vue/utils/Store';
 import en from './locales/en.json';
 import he from './locales/he.json';
+import Main from './vue/controllers/Main';
 
-registerVueControllerComponents(require.context('./vue/controllers', true, /\.vue$/, 'lazy'));
+//import { registerVueControllerComponents } from '@symfony/ux-vue';
+//registerVueControllerComponents(require.context('./vue/controllers', true, /\.vue$/, 'lazy'));
 
-document.addEventListener('vue:before-mount', (event) => {
-    const {
-        componentName, // The Vue component's name
-        component, // The resolved Vue component
-        props, // The props that will be injected to the component
-        app, // The Vue application instance
-    } = event.detail;
-
-    /*const router = VueRouter.createRouter({
-        history: VueRouter.createWebHashHistory(),
-        routes: [
-            { path: '/', component: Main },
-            { path: '/login', component: Login },
-        ],
-    });
-
-    app.use(router);*/
-
-    const i18n = createI18n({
-        legacy: false,
-        globalInjection: true,
-        locale: 'he',
-        fallbackLocale: 'he',
-        messages: {
-            en,
-            he
-        }
-    });
-
-    app.use(i18n);
+const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+        { path: '/', component: () => import('./vue/controllers/Dashboard/Main'), meta: { requiresAuth: true } },
+        { path: '/sign-in', name: 'Login', component: () => import('./vue/controllers/Auth/Login'), meta: { requiresAuth: false } },
+    ],
 });
+
+router.beforeEach(async (to, from, next) => {
+    if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
+        next({ name: 'Login' });
+    } else {
+        next();
+    }
+});
+
+const i18n = createI18n({
+    legacy: false,
+    globalInjection: true,
+    locale: 'he',
+    fallbackLocale: 'he',
+    messages: { en, he }
+});
+
+const app = createApp(Main)
+    .provide('router', router)
+    .provide('store', store)
+    .use(router)
+    .use(i18n)
+    .mount('#app');
